@@ -3,7 +3,7 @@
   (:gen-class))
 
 (defn tuples [coll]
-  "Given a seq return a sequence of tuples. ie [a b c d] returns [[ab] [bc] [cd] [d nil]"
+  "Given a seq return a sequence of tuples. ie [a b c d e]  returns [[ab] [cd] [e nil]"
   (when-let [s (seq coll)]
-    (cons [(first s) (second s)] (tuples (rest s)))))
+    (cons [(first s) (second s)] (tuples (nthrest s 2)))))
 
