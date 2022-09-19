@@ -61,12 +61,6 @@
   (println msg)
   (System/exit status))
 
-(defn litchi-to-plan [options]
-  )
-
-(defn qgc-to-plan [options]
-  )
-
 (defn pix4d-to-plan [options]
   (let [cli-options (first options)
         plan (pix/generate-flightplan-body (json/read-str (slurp (:input cli-options)) :key-fn keyword) cli-options)]
@@ -82,7 +76,4 @@
   (let [{:keys [action options exit-message ok?]} (validate-args args)]
     (if exit-message
       (exit (if ok? 0 1) exit-message)
-      (case action
-        "litchi-to-plan"  (litchi-to-plan [options])
-        "qgc-to-plan "   (qgc-to-plan [options])
-        "pix4d-to-plan"  (pix4d-to-plan [options])))))
+        (pix4d-to-plan [options]))))
