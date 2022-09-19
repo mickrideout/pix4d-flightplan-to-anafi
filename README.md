@@ -1,32 +1,35 @@
 # anafi-flightplan-utils
 
-FIXME: description
+Converts drone flight plans gerneated by Pix4D to Parrot Anafi format.
 
 ## Installation
 
-Download from http://example.com/FIXME.
+Clojure Leiningen is needed to build this project: https://leiningen.org/#install
+
+Build the uberjar which is built to the target directory `target/uberjar`:
+```
+lein uberjar
+```
 
 ## Usage
+```
+java -jar anafi-flightplan-utils-0.1.0-standalone.jar 
 
-FIXME: explanation
+Usage: anafi-flightplan-utils [options]
 
-    $ java -jar anafi-flightplan-utils-0.1.0-standalone.jar [args]
+Options:
+  -i, --input FILE                      Input file
+  -o, --output FILE                     Output file
+  -s, --speed SPEED         5           Speed m/s
+  -p, --period SECS         2           Image capture period secs
+  -t, --title TITLE         2022-09-19  Title of the flightplan
+  -x, --homeLatitude LAT                latitude to return to
+  -y, --homeLongitude LONG              longitude to return to
+  -a, --homeAltitude ALT    50          Altitude to return to for home
+  -h, --help                            Help
 
-## Options
+```
 
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
 
 ## License
 
