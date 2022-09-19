@@ -27,16 +27,11 @@
 (defn usage [options-summary]
   (->> ["Anafi flightplan utils."
         ""
-        "Usage: anafi-flightplan-utils action [options]"
+        "Usage: anafi-flightplan-utils [options]"
         ""
         "Options:"
         options-summary
-        ""
-        "Actions:"
-        "  litchi-to-plan    Litchi csv to Anafi Flightplan"
-        "  gqc-to-plan       QGroundControl json to Anafi Flightplan"
-        "  pix4d-to-plan     Pix4DCapture json to Anafi Flightplan"
-        ""]
+        ]
        (string/join \newline)))
 
 (defn validate-args
