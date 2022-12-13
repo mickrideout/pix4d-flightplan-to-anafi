@@ -46,11 +46,8 @@
         {:exit-message (usage summary) :ok? true}
       errors ; errors => exit with description of errors
         {:exit-message (error-msg errors)}
-      ;; custom validation on arguments
-      (contains? #{"litchi-to-plan" "qgc-to-plan" "pix4d-to-plan"} (first arguments))
-        {:action (first arguments) :options options}
-      :else ; failed custom validation => exit with usage summary
-        {:exit-message (usage summary)})))
+      :else
+      {:options options})))
 
 (defn exit [status msg]
   (println msg)
@@ -62,7 +59,7 @@
     (if (s/valid? ::fp/flightplan plan)
       (do
         (spit (:output cli-options) (with-out-str (json/pprint plan)))
-        (str "Flightplan written to " (:output cli-options)))
+        (printf (str "Flightplan written to " (:output cli-options))))
       (str "Invalid flightplan: \n" (s/explain ::fp/flightplan plan)))))
 
 (defn -main

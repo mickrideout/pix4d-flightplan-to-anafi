@@ -14,6 +14,8 @@
 (defn bearing-to
   "Returns the (initial) bearing from `point-1` to the `point-2` in degrees."
   [lat1 long1 lat2 long2]
+  (if (not (every? true? (map some? [lat1 long1 lat2 long2])))
+    (throw (IllegalArgumentException. (str "An argument was null: " lat1 " " long1 " " lat2 " " long2))))
   (mod (- 520
           (int
             (*
@@ -66,15 +68,30 @@
       [(conj anafi-point1 {:yaw heading})
        (conj anafi-point2 {:yaw heading})]))
 
+(defn generate-anafi-waypoint-tuple [tuple cli-options]
+  "Given a tuple of pix4d points, return a tuple of anafi waypoints"
+  (let [pixpoint1 (first tuple)
+        pixpoint2 (second tuple)]
+    (if (nil? pixpoint2)
+      [(conj (generate-anafi-waypoint pixpoint1 cli-options) {:yaw 0.0})]
+      (let [anafi-point1 (generate-anafi-waypoint pixpoint1 cli-options)
+            anafi-point2 (generate-anafi-waypoint pixpoint2 cli-options)
+            heading (determine-heading anafi-point1 anafi-point2)]
+        [(conj anafi-point1 {:yaw heading})
+         (conj anafi-point2 {:yaw heading})]))))
+
 (defn generate-anafi-waypoints [pix4d-waypoints cli-options]
   "Generate all waypoints"
-  (let [home-waypoint (generate-pix4d-home-waypoint cli-options)
-        waypoints  (flatten (map #(generate-anafi-waypoint-tuple % cli-options) (sh/tuples pix4d-waypoints)))
-        bearing-from-home (determine-heading home-waypoint (first waypoints))
-        bearing-to-home (determine-heading (last waypoints) home-waypoint)]
-    (flatten [(conj home-waypoint {:yaw bearing-from-home :actions [{:type "ImageStopCapture"}]})
-              waypoints
-              (conj home-waypoint {:yaw bearing-to-home})])))
+  (let [waypoints (into [] (flatten (map #(generate-anafi-waypoint-tuple % cli-options) (sh/tuples pix4d-waypoints))))]
+    (if (and (some? (:homeLongitude cli-options)) (some? (:homeLatitude cli-options)) (some? (:homeAltitude cli-options)))
+      ; add static home point to
+      (let [home-waypoint (generate-pix4d-home-waypoint cli-options)
+            bearing-from-home (determine-heading home-waypoint (first waypoints))
+            bearing-to-home (determine-heading (last waypoints) home-waypoint)]
+        (flatten [(conj home-waypoint {:yaw bearing-from-home :actions [{:type "ImageStopCapture"}]})
+                  waypoints
+                  (conj home-waypoint {:yaw bearing-to-home})]))
+      waypoints)))
 
 
 (defn generate-flightplan-body [pix4d-plan cli-options]
