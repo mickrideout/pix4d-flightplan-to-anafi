@@ -11,8 +11,8 @@
   [
    ["-i" "--input FILE" "Input file"]
    ["-o" "--output FILE" "Output file"]
-   ["-s" "--speed SPEED" "Speed m/s" :default 5]
-   ["-p" "--period SECS" "Image capture period secs" :default 2]
+   ["-s" "--speed SPEED" "Speed m/s" :default 5 :parse-fn #(Integer/parseInt %)]
+   ["-p" "--period SECS" "Image capture period secs" :default 2 :parse-fn #(Integer/parseInt %)]
    ["-t" "--title TITLE"  "Title of the flightplan" :default (.format (java.text.SimpleDateFormat. "yyyy-MM-dd") (java.util.Date.))]
    ["-x" "--homeLatitude LAT" "latitude to return to" :parse-fn #(Double/parseDouble %)]
    ["-y" "--homeLongitude LONG" "longitude to return to" :parse-fn #(Double/parseDouble %)]
@@ -40,14 +40,13 @@
   indicating the action the program should take and the options provided."
   [args]
   (let [{:keys [options arguments errors summary]} (cli/parse-opts args cli-options)]
-    (println arguments)
     (cond
       (:help options) ; help => exit OK with usage summary
         {:exit-message (usage summary) :ok? true}
       errors ; errors => exit with description of errors
         {:exit-message (error-msg errors)}
       :else
-      {:options options})))
+        {:options options})))
 
 (defn exit [status msg]
   (println msg)
@@ -59,13 +58,15 @@
     (if (s/valid? ::fp/flightplan plan)
       (do
         (spit (:output cli-options) (with-out-str (json/pprint plan)))
-        (printf (str "Flightplan written to " (:output cli-options))))
-      (str "Invalid flightplan: \n" (s/explain ::fp/flightplan plan)))))
+        (println (str "Flightplan written to " (:output cli-options))))
+      (do
+        (println (str "Invalid flightplan: \n" (s/explain ::fp/flightplan plan)))
+        (println (str "Invalidate flightplan was: " plan))))))
 
 (defn -main
   "Anafi-flightplan-utils"
   [& args]
-  (let [{:keys [action options exit-message ok?]} (validate-args args)]
-    (if exit-message
-      (exit (if ok? 0 1) exit-message)
-        (pix4d-to-plan [options]))))
+  (let [{:keys [options exit-message]} (validate-args args)]
+    (if (not(nil? exit-message))
+      (exit 1 exit-message)
+      (pix4d-to-plan [options]))))
