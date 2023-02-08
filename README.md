@@ -29,7 +29,10 @@ Options:
   -h, --help                            Help
 
 ```
-
+### Example
+```
+java -jar target/uberjar/anafi-flightplan-utils-0.1.0-SNAPSHOT-standalone.jar -i details.pix4dcapture-mission -o savedPlan.json --speed 1 --period 1.5
+```
 
 ## License
 

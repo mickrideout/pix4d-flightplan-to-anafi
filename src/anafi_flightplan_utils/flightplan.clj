@@ -18,7 +18,7 @@
 
 ; Actions
 (s/def ::type #{"ImageStartCapture" "ImageStopCapture" "Panorama" "VideoStartCapture" "VideoStopCapture" "Tilt" "Delay"})
-(s/def :image/period int?)
+(s/def :image/period number?)
 (s/def :image/resolution number?)
 (s/def :image/nbOfPictures int?)
 (s/def :tilt/angle int?)
