@@ -22,10 +22,11 @@ Options:
   -o, --output FILE                     Output file
   -s, --speed SPEED         5           Speed m/s
   -p, --period SECS         2           Image capture period secs
-  -t, --title TITLE         2022-09-19  Title of the flightplan
+  -n, --title TITLE         2022-09-19  Title of the flightplan
   -x, --homeLatitude LAT                latitude to return to
   -y, --homeLongitude LONG              longitude to return to
   -a, --homeAltitude ALT    50          Altitude to return to for home
+  -t  --tilt ANGLE          80          The tilt angle for the camera
   -h, --help                            Help
 
 ```

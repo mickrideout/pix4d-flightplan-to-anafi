@@ -53,7 +53,7 @@
   (generate-anafi-waypoint
     {
      :location [(:homeLongitude cli-options) (:homeLatitude cli-options) (:homeAltitude cli-options)]
-     :cameraOrientation [0.0 90.0 0.0]
+     :cameraOrientation [0.0 80.0 0.0]
      :flags ["EndCapture"]
      }
     cli-options))
@@ -113,6 +113,6 @@
      :rotation 0
      :tilt 0
      :mapType 4
-     :plan {:takeoff [{:type "Tilt" :angle 90 :speed 180}]
+     :plan {:takeoff [{:type "Tilt" :angle (:tilt cli-options) :speed 180}]
             :poi []
             :wayPoints (generate-anafi-waypoints (-> pix4d-plan :flightPlan :waypoints) cli-options)}}))
