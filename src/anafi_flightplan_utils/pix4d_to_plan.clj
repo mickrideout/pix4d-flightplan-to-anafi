@@ -9,6 +9,7 @@
   (cond
     (= "BeginCapture" pix4d-action) {:type "ImageStartCapture" :period (:period cli-options) :resolution fp/image-resolution-jpeg-wide :nbOfPictures 0}
     (= "EndCapture" pix4d-action) {:type "ImageStopCapture"}
+    (= "Tilt" pix4d-action) {:type "Tilt", :tilt (:tilt cli-options), :speed 180}
     ))
 
 (defn bearing-to
@@ -53,20 +54,8 @@
   (generate-anafi-waypoint
     {
      :location [(:homeLongitude cli-options) (:homeLatitude cli-options) (:homeAltitude cli-options)]
-     :cameraOrientation [0.0 80.0 0.0]
-     :flags ["EndCapture"]
      }
     cli-options))
-
-(defn generate-anafi-waypoint-tuple [tuple cli-options]
-  "Given a tuple of pix4d points, return a tuple of anafi waypoints"
-  (let [pixpoint1 (first tuple)
-        pixpoint2 (second tuple)
-        anafi-point1 (generate-anafi-waypoint pixpoint1 cli-options)
-        anafi-point2 (generate-anafi-waypoint pixpoint2 cli-options)
-        heading (determine-heading anafi-point1 anafi-point2)]
-      [(conj anafi-point1 {:yaw heading})
-       (conj anafi-point2 {:yaw heading})]))
 
 (defn generate-anafi-waypoint-tuple [tuple cli-options]
   "Given a tuple of pix4d points, return a tuple of anafi waypoints"
@@ -82,21 +71,27 @@
 
 (defn generate-anafi-waypoints [pix4d-waypoints cli-options]
   "Generate all waypoints"
-  (let [waypoints (into [] (flatten (map #(generate-anafi-waypoint-tuple % cli-options) (sh/tuples pix4d-waypoints))))]
-    (if (and (some? (:homeLongitude cli-options)) (some? (:homeLatitude cli-options)) (some? (:homeAltitude cli-options)))
-      ; add static home point to
-      (let [home-waypoint (generate-pix4d-home-waypoint cli-options)
-            bearing-from-home (determine-heading home-waypoint (first waypoints))
-            bearing-to-home (determine-heading (last waypoints) home-waypoint)]
-        (flatten [(conj home-waypoint {:yaw bearing-from-home :actions [{:type "ImageStopCapture"}]})
+  (let [waypoints (into [] (flatten (map #(generate-anafi-waypoint-tuple % cli-options) (sh/tuples pix4d-waypoints))))
+        home-waypoint (generate-pix4d-home-waypoint cli-options)
+        bearing-from-home (determine-heading home-waypoint (first waypoints))
+        bearing-to-home (determine-heading (last waypoints) home-waypoint)]
+        (flatten [(conj home-waypoint {:yaw bearing-from-home :actions [{:type "ImageStopCapture"} {:type "Tilt" :angle (:tilt cli-options) :speed 180}]})
                   waypoints
-                  (conj home-waypoint {:yaw bearing-to-home})]))
-      waypoints)))
+                  (conj home-waypoint {:yaw bearing-to-home :actions [{:type "Tilt" :angle 0 :speed 180}]})])))
 
+(defn assoc-if-not-set [m & keyvals]
+  (reduce (fn [result [key value]]
+            (if (not (contains? m key))
+              (assoc result key value)
+              result))
+          m
+          (partition 2 keyvals)))
 
 (defn generate-flightplan-body [pix4d-plan cli-options]
   "Generate anafi flight plan from pix4d plan"
-  (let [[home-lat home-long] (:homeCoordinate pix4d-plan)]
+  (let [[home-lat home-long] (:homeCoordinate pix4d-plan)
+        override-options (assoc-if-not-set cli-options :homeLatitude home-lat :homeLongitude home-long)
+        ]
     {:version 1
      :title (:title cli-options)
      :product "ANAFI_4K"
@@ -113,6 +108,6 @@
      :rotation 0
      :tilt 0
      :mapType 4
-     :plan {:takeoff [{:type "Tilt" :angle (:tilt cli-options) :speed 180}]
+     :plan {:takeoff []
             :poi []
-            :wayPoints (generate-anafi-waypoints (-> pix4d-plan :flightPlan :waypoints) cli-options)}}))
+            :wayPoints (generate-anafi-waypoints (-> pix4d-plan :flightPlan :waypoints) override-options)}}))

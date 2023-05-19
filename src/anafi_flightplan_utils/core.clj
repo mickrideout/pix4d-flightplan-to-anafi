@@ -16,7 +16,7 @@
    ["-n" "--title TITLE"  "Title of the flightplan" :default (.format (java.text.SimpleDateFormat. "yyyy-MM-dd") (java.util.Date.))]
    ["-x" "--homeLatitude LAT" "latitude to return to" :parse-fn #(Double/parseDouble %)]
    ["-y" "--homeLongitude LONG" "longitude to return to" :parse-fn #(Double/parseDouble %)]
-   ["-a" "--homeAltitude ALT" "Altitude to return to for home" :default 50 :parse-fn #(Integer/parseInt %)]
+   ["-a" "--homeAltitude ALT" "Altitude to return to for home" :default 100 :parse-fn #(Integer/parseInt %)]
    ["-t" "--tilt ANGLE" :default 80 :parse-fn #(Integer/parseInt %)]
    ["-h" "--help" "Help"]
    ])
