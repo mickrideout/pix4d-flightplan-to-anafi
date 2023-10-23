@@ -13,7 +13,7 @@
    ["-o" "--output FILE" "Output file"]
    ["-s" "--speed SPEED" "Speed m/s" :default 5 :parse-fn #(Integer/parseInt %)]
    ["-p" "--period SECS" "Image capture period secs" :default 2 :parse-fn #(.setScale (bigdec %) 1 (java.math.BigDecimal/ROUND_HALF_UP))]
-   ["-n" "--title TITLE"  "Title of the flightplan" :default (.format (java.text.SimpleDateFormat. "yyyy-MM-dd") (java.util.Date.))]
+   ["-n" "--name NAME"  "Name of the flightplan" :default (.format (java.text.SimpleDateFormat. "yyyy-MM-dd") (java.util.Date.))]
    ["-x" "--homeLatitude LAT" "latitude to return to" :parse-fn #(Double/parseDouble %)]
    ["-y" "--homeLongitude LONG" "longitude to return to" :parse-fn #(Double/parseDouble %)]
    ["-a" "--homeAltitude ALT" "Altitude to return to for home" :default 100 :parse-fn #(Integer/parseInt %)]

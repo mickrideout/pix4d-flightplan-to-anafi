@@ -90,13 +90,14 @@
 (defn generate-flightplan-body [pix4d-plan cli-options]
   "Generate anafi flight plan from pix4d plan"
   (let [[home-lat home-long] (:homeCoordinate pix4d-plan)
-        override-options (assoc-if-not-set cli-options :homeLatitude home-lat :homeLongitude home-long)
+        cameraPitch (-> pix4d-plan :missionPlan :cameraPitch)
+        override-options (assoc-if-not-set cli-options :homeLatitude home-lat :homeLongitude home-long :tilt cameraPitch)
         ]
     {:version 1
-     :title (:title cli-options)
+     :title (:name cli-options)
      :product "ANAFI_4K"
      :productId 2324
-     :uuid (:title cli-options)
+     :uuid (:name cli-options)
      :date (.getTime (java.util.Date.))
      :progressive_course_activated true
      :dirty false
@@ -106,7 +107,7 @@
      :latitudeDelta 0.0
      :zoomLevel 19.48026466369629
      :rotation 0
-     :tilt 0
+     :tilt (:tilt cli-options)
      :mapType 4
      :plan {:takeoff []
             :poi []

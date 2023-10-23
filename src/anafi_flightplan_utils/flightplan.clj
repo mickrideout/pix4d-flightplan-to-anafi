@@ -57,7 +57,7 @@
                                 :opt-un [:waypoint/actions]))
 
 (s/def ::version int?)
-(s/def ::title string?)
+(s/def ::name string?)
 (s/def ::product string?)
 (s/def ::productId int?)
 (s/def ::uuid string?)
